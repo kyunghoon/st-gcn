@@ -26,6 +26,9 @@ def stgcn_visualize(pose,
         skeleton = frame * 0
         text = frame * 0
         for m in range(M):
+            if t  >= pose.shape[1]:
+                continue
+
             score = pose[2, t, :, m].mean()
             if score < 0.3:
                 continue
@@ -68,6 +71,9 @@ def stgcn_visualize(pose,
         feature = np.abs(feature)
         feature = feature / feature.mean()
         for m in range(M):
+            if t >= pose.shape[1]:
+                continue
+
             score = pose[2, t, :, m].mean()
             if score < 0.3:
                 continue
@@ -87,40 +93,39 @@ def stgcn_visualize(pose,
                            int(np.ceil(f[v]**0.5 * 8 * scale_factor)))
         blurred_mask = cv2.blur(mask, (12, 12))
 
-        skeleton_result = blurred_mask.astype(float) * 0.75
-        skeleton_result += skeleton.astype(float) * 0.25
-        skeleton_result += text.astype(float)
-        skeleton_result[skeleton_result > 255] = 255
-        skeleton_result.astype(np.uint8)
+        #skeleton_result = blurred_mask.astype(float) * 0.75
+        #skeleton_result += skeleton.astype(float) * 0.25
+        #skeleton_result += text.astype(float)
+        #skeleton_result[skeleton_result > 255] = 255
+        #skeleton_result.astype(np.uint8)
 
         rgb_result = blurred_mask.astype(float) * 0.75
         rgb_result += frame.astype(float) * 0.5
         rgb_result += skeleton.astype(float) * 0.25
+        rgb_result += text.astype(float)
         rgb_result[rgb_result > 255] = 255
         rgb_result.astype(np.uint8)
 
-        put_text(skeleton, 'inputs of st-gcn', (0.1, 0.5))
+        #put_text(skeleton, 'inputs of st-gcn', (0.1, 0.5))
 
-        text_1 = cv2.imread('./resource/demo_asset/original_video.png', cv2.IMREAD_UNCHANGED)
-        text_2 = cv2.imread('./resource/demo_asset/pose_estimation.png', cv2.IMREAD_UNCHANGED)
-        text_3 = cv2.imread('./resource/demo_asset/attention+prediction.png', cv2.IMREAD_UNCHANGED)
-        text_4 = cv2.imread('./resource/demo_asset/attention+rgb.png', cv2.IMREAD_UNCHANGED)
+        #text_1 = cv2.imread('./resource/demo_asset/original_video.png', cv2.IMREAD_UNCHANGED)
+        ##text_2 = cv2.imread('./resource/demo_asset/pose_estimation.png', cv2.IMREAD_UNCHANGED)
+        #text_3 = cv2.imread('./resource/demo_asset/attention+prediction.png', cv2.IMREAD_UNCHANGED) # this text
+        #text_4 = cv2.imread('./resource/demo_asset/attention+rgb.png', cv2.IMREAD_UNCHANGED) # this image
         
-        try:
-            blend(frame, text_1)
-            blend(skeleton, text_2)
-            blend(skeleton_result, text_3)
-            blend(rgb_result, text_4)
-        except:
-            pass
+        #blend(frame, text_1)
+        #blend(skeleton, text_2)
+        #blend(skeleton_result, text_3)
+        #blend(rgb_result, text_4)
 
         if label is not None:
             label_name = 'voting result: ' + label
-            put_text(skeleton_result, label_name, (0.1, 0.5))
+            put_text(rgb_result, label_name, (0.1, 0.0))
+            #put_text(skeleton_result, label_name, (0.1, 0.0))
 
-        img0 = np.concatenate((frame, skeleton), axis=1)
-        img1 = np.concatenate((skeleton_result, rgb_result), axis=1)
-        img = np.concatenate((img0, img1), axis=0)
+        #img0 = np.concatenate((frame, skeleton), axis=1)
+        img = rgb_result#np.concatenate((skeleton_result, rgb_result), axis=1)
+        #img = np.concatenate((img0, img1), axis=0)
 
         yield img
 

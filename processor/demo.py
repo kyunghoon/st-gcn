@@ -85,6 +85,11 @@ class Demo(IO):
             pose, edge, intensity, video,label_name[label] , label_name_sequence, self.arg.height)
         print('Done.')
 
+        with open(output_result_dir + '/data.json', 'w', encoding='utf-8') as f:
+            json.dump({"sequence": label_name_sequence, "result": label_name[label]}, f, ensure_ascii=False, indent=2)
+
+        print('label_name_sequence...', output_result_dir, str(label_name_sequence))
+
         # save video
         print('\nSaving...')
         if not os.path.exists(output_result_dir):
